@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin Dashboard - Smart Gym</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="container">
+            <a href="index.html" class="logo"><i class="fas fa-dumbbell"></i> Smart Gym</a>
+            <nav>
+                <a href="index.html">Home</a>
+                <!-- Admin links injected by JS -->
+                <div id="user-nav" style="display: flex; align-items: center; gap: 1rem;"></div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container" style="padding-top: 4rem; padding-bottom: 4rem;">
+        <h2 class="mb-4">Admin Dashboard</h2>
+        <p class="text-muted mb-4">Welcome back, Admin. Manage your gym efficiently.</p>
+
+        <div class="features-grid">
+            <a href="members.html" class="feature-card" style="text-decoration: none; display: block;">
+                <div class="feature-icon"><i class="fas fa-users"></i></div>
+                <h3>Manage Members</h3>
+                <p>View, register, renew, or cancel memberships.</p>
+            </a>
+            <a href="trainers.html" class="feature-card" style="text-decoration: none; display: block;">
+                <div class="feature-icon"><i class="fas fa-user-ninja"></i></div>
+                <h3>Manage Trainers</h3>
+                <p>View trainers and schedule sessions.</p>
+            </a>
+            <a href="plans.html" class="feature-card" style="text-decoration: none; display: block;">
+                <div class="feature-icon"><i class="fas fa-clipboard-list"></i></div>
+                <h3>Assign Workouts</h3>
+                <p>Assign workout and diet plans to members.</p>
+            </a>
+            <a href="payments.html" class="feature-card" style="text-decoration: none; display: block;">
+                <div class="feature-icon"><i class="fas fa-chart-pie"></i></div>
+                <h3>Reports</h3>
+                <p>View analytics on membership and revenue.</p>
+            </a>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2025 Smart Gym Management System. Developed by Group 6</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Plans - Smart Gym</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="index.html" class="logo"><i class="fas fa-dumbbell"></i> Smart Gym</a>
+      <nav>
+        <a href="index.html">Home</a>
+        <div id="user-nav" style="display: flex; align-items: center; gap: 1rem;">
+          <a href="login.html" id="login-link" class="btn btn-sm btn-outline">Login</a>
+          <a href="register.html" id="register-link" class="btn btn-sm btn-primary">Register</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="padding-top: 4rem; padding-bottom: 4rem;">
+    <h2 class="mb-4">Workout & Diet Plans</h2>
+
+    <!-- Admin Only: Manage Membership Plans -->
+    <div id="managePlansSection" style="display: none; margin-bottom: 3rem;">
+      <h3 class="mb-3">Manage Membership Plans</h3>
+      <div class="features-grid" id="managePlansList">
+        <!-- Plans injected by JS -->
+      </div>
+      <hr style="margin: 2rem 0; border-color: var(--border-color);">
+    </div>
+
+    <div class="feature-card mb-4">
+      <h3 class="mb-3">Assign Plan</h3>
+      <div class="form-group">
+        <label>Member</label>
+        <select id="planMember"></select>
+      </div>
+      <div class="form-group">
+        <label>Workout Routine</label>
+        <textarea id="workout" rows="3" placeholder="e.g. Mon: Chest, Tue: Back..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Diet Plan</label>
+        <textarea id="diet" rows="3" placeholder="e.g. Breakfast: Oats, Lunch: Chicken..."></textarea>
+      </div>
+      <button id="assignPlan" class="btn btn-primary">Assign Plan</button>
+    </div>
+
+    <h3 class="mb-3">Assigned Plans</h3>
+    <div class="features-grid" id="assignedPlans">
+      <!-- Plans injected by JS -->
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>&copy; 2025 Smart Gym Management System. Developed by Group 6</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

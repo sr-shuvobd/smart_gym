@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reports - Smart Gym</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="index.html" class="logo"><i class="fas fa-dumbbell"></i> Smart Gym</a>
+      <nav>
+        <a href="index.html">Home</a>
+        <div id="user-nav" style="display: flex; align-items: center; gap: 1rem;">
+          <a href="login.html" id="login-link" class="btn btn-sm btn-outline">Login</a>
+          <a href="register.html" id="register-link" class="btn btn-sm btn-primary">Register</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="padding-top: 4rem; padding-bottom: 4rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+      <h2 class="mb-0">Analytics & Reports</h2>
+      <button class="btn btn-sm btn-outline" onclick="window.print()"><i class="fas fa-download"></i> Export
+        Report</button>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #6366f1, #4f46e5);">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-info">
+          <h3 id="totalMembers">0</h3>
+          <p>Total Members</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
+          <i class="fas fa-user-check"></i>
+        </div>
+        <div class="stat-info">
+          <h3 id="activeMembers">0</h3>
+          <p>Active Members</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+          <i class="fas fa-dollar-sign"></i>
+        </div>
+        <div class="stat-info">
+          <h3 id="totalRevenue">$0</h3>
+          <p>Total Revenue</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #ec4899, #db2777);">
+          <i class="fas fa-dumbbell"></i>
+        </div>
+        <div class="stat-info">
+          <h3 id="totalSessions">0</h3>
+          <p>Trainer Sessions</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-grid">
+      <div class="chart-container chart-full">
+        <h3 class="mb-3">Revenue Overview</h3>
+        <canvas id="paymentChart" style="max-height: 300px;"></canvas>
+      </div>
+      <div class="chart-container">
+        <h3 class="mb-3">Membership Status</h3>
+        <canvas id="membershipChart" style="max-height: 300px;"></canvas>
+      </div>
+      <div class="chart-container">
+        <h3 class="mb-3">Trainer Performance</h3>
+        <canvas id="trainerChart" style="max-height: 300px;"></canvas>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>&copy; 2025 Smart Gym Management System. Developed by Group 6</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

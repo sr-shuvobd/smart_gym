@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Smart Gym Management System</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="index.html" class="logo"><i class="fas fa-dumbbell"></i> Smart Gym</a>
+      <nav>
+        <a href="index.html">Home</a>
+        <!-- Links injected by JS -->
+        <div id="user-nav" style="display: flex; align-items: center; gap: 1rem;">
+          <a href="login.html" id="login-link" class="btn btn-sm btn-outline">Login</a>
+          <a href="register.html" id="register-link" class="btn btn-sm btn-primary">Register</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <h2>Elevate Your Fitness Journey</h2>
+        <p>Experience the future of gym management with automated scheduling, progress tracking, and seamless payments.
+        </p>
+        <div class="hero-btns">
+          <a class="btn btn-primary" href="register.html" id="hero-register-btn">Get Started</a>
+          <a class="btn btn-outline" href="login.html" id="hero-login-btn">Member Login</a>
+        </div>
+      </div>
+    </section>
+
+    <div class="container">
+      <!-- Pricing Section -->
+      <section id="pricing" class="mb-4">
+        <h2 class="text-center mb-4">Membership Plans</h2>
+        <div class="features-grid">
+          <div class="feature-card text-center">
+            <h3>Monthly</h3>
+            <p class="text-muted">Flexible & Short-term</p>
+            <h2 class="mb-3" style="color: var(--primary-color);">$50<span
+                style="font-size: 1rem; color: var(--text-muted);">/mo</span></h2>
+            <ul class="text-muted mb-4" style="text-align: left; display: inline-block;">
+              <li><i class="fas fa-check text-success"></i> Full Gym Access</li>
+              <li><i class="fas fa-check text-success"></i> Locker Access</li>
+            </ul>
+            <a href="register.html" class="btn btn-outline" style="width: 100%;">Choose Plan</a>
+          </div>
+          <div class="feature-card text-center"
+            style="border-color: var(--primary-color); box-shadow: var(--shadow-lg);">
+            <div class="badge badge-success mb-2">Most Popular</div>
+            <h3>Quarterly</h3>
+            <p class="text-muted">Commit & Save</p>
+            <h2 class="mb-3" style="color: var(--primary-color);">$135<span
+                style="font-size: 1rem; color: var(--text-muted);">/3mo</span></h2>
+            <ul class="text-muted mb-4" style="text-align: left; display: inline-block;">
+              <li><i class="fas fa-check text-success"></i> All Monthly Perks</li>
+              <li><i class="fas fa-check text-success"></i> 1 Free Trainer Session</li>
+              <li><i class="fas fa-check text-success"></i> 10% Discount</li>
+            </ul>
+            <a href="register.html" class="btn btn-primary" style="width: 100%;">Choose Plan</a>
+          </div>
+          <div class="feature-card text-center">
+            <h3>Yearly</h3>
+            <p class="text-muted">Best Value</p>
+            <h2 class="mb-3" style="color: var(--primary-color);">$500<span
+                style="font-size: 1rem; color: var(--text-muted);">/yr</span></h2>
+            <ul class="text-muted mb-4" style="text-align: left; display: inline-block;">
+              <li><i class="fas fa-check text-success"></i> All Quarterly Perks</li>
+              <li><i class="fas fa-check text-success"></i> Unlimited Trainer Access</li>
+              <li><i class="fas fa-check text-success"></i> Free Diet Plan</li>
+            </ul>
+            <a href="register.html" class="btn btn-outline" style="width: 100%;">Choose Plan</a>
+          </div>
+        </div>
+      </section>
+      <!-- User Dashboard (Hidden by default) -->
+      <section id="userDashboard" style="display: none; margin-bottom: 4rem;">
+        <h3 class="mb-3">My Dashboard</h3>
+        <!-- Content injected by JS -->
+      </section>
+
+      <section class="features">
+        <div class="features-grid">
+          <article class="feature-card">
+            <div class="feature-icon"><i class="fas fa-users"></i></div>
+            <h3>Member Management</h3>
+            <p>Seamlessly register, renew, and track membership status with automated expiry notifications.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon"><i class="fas fa-calendar-check"></i></div>
+            <h3>Trainer Scheduling</h3>
+            <p>Efficiently assign trainers, prevent double-bookings, and manage daily schedules.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon"><i class="fas fa-running"></i></div>
+            <h3>Workout & Diet Plans</h3>
+            <p>Personalized plans assigned by trainers to help members achieve their fitness goals.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+            <h3>Payments & Reports</h3>
+            <p>Track payments, generate invoices, and view insightful analytics on gym performance.</p>
+          </article>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <h4>About Smart Gym</h4>
+          <p class="text-muted">Your one-stop solution for managing your gym efficiently. From member registration to
+            payment processing, we've got you covered.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="members.html">Members</a></li>
+            <li><a href="trainers.html">Trainers</a></li>
+            <li><a href="plans.html">Plans</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Contact Us</h4>
+          <ul>
+            <li><i class="fas fa-phone text-muted"></i> <span class="text-muted">+880 1752 000000</span></li>
+            <li><i class="fas fa-envelope text-muted"></i> <span class="text-muted">info.smartgym@gmail.com</span></li>
+          </ul>
+          <div class="mt-4">
+            <a href="#" style="font-size: 1.5rem; margin-right: 1rem;"><i class="fab fa-facebook"></i></a>
+            <a href="#" style="font-size: 1.5rem;"><i class="fab fa-instagram"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Smart Gym Management System. Developed by Group 6</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
