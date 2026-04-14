@@ -538,6 +538,18 @@ const SmartGym = {
     const members = await this.fetchAPI('/members');
     let payments = await this.fetchAPI('/payments');
 
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('msg') === 'success') {
+      setTimeout(() => this.toast('Payment completed successfully!', 'success'), 500);
+      window.history.replaceState(null, null, window.location.pathname);
+    } else if (urlParams.get('msg') === 'fail') {
+      setTimeout(() => this.toast('Payment failed', 'error'), 500);
+      window.history.replaceState(null, null, window.location.pathname);
+    } else if (urlParams.get('msg') === 'cancel') {
+      setTimeout(() => this.toast('Payment was cancelled', 'info'), 500);
+      window.history.replaceState(null, null, window.location.pathname);
+    }
+
     const recordSection = document.querySelector('.feature-card');
     if (recordSection) {
       recordSection.style.display = 'block';
@@ -550,6 +562,23 @@ const SmartGym = {
       if (user.role === 'member') {
         select.innerHTML = `<option value="${user.id}">${user.name}</option>`;
         select.disabled = true;
+        
+        const amountDiv = document.getElementById('payAmount').closest('div');
+        amountDiv.innerHTML = `
+          <label>Select Plan</label>
+          <select id="payPlan">
+            <option value="" data-amount="">Select a Plan...</option>
+            <option value="monthly" data-amount="29.99">Monthly ($29.99)</option>
+            <option value="quarterly" data-amount="79.99">Quarterly ($79.99)</option>
+            <option value="yearly" data-amount="299.99">Yearly ($299.99)</option>
+          </select>
+          <input type="hidden" id="payAmount" value="" />
+        `;
+        document.getElementById('payPlan').addEventListener('change', (e) => {
+          const selectedOption = e.target.options[e.target.selectedIndex];
+          document.getElementById('payAmount').value = selectedOption.getAttribute('data-amount');
+        });
+        
       } else {
         select.innerHTML = members.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
         select.disabled = false;
@@ -565,14 +594,30 @@ const SmartGym = {
         const memberId = document.getElementById('payMember').value;
         const amount = Number(document.getElementById('payAmount').value);
         const method = document.getElementById('payMethod').value;
+        
+        const planSelect = document.getElementById('payPlan');
+        const planId = planSelect ? planSelect.value : '';
 
         if (!memberId || !amount) return this.toast('Invalid payment details', 'error');
+        if (planSelect && !planId) return this.toast('Please select a plan', 'error');
 
-        const newPayment = { id: this.uid('pay'), memberId, amount, method, at: new Date().toISOString() };
-        await this.fetchAPI('/payments', 'POST', newPayment);
-        this.toast('Payment successful!', 'success');
-        document.getElementById('payAmount').value = '';
-        this.renderPaymentsPage();
+        if (user && user.role === 'admin') {
+            const newPayment = { id: window.SmartGym ? window.SmartGym.uid('pay') : `pay_${Date.now()}`, memberId, amount, method, at: new Date().toISOString() };
+            await this.fetchAPI('/payments', 'POST', newPayment);
+            this.toast('Payment recorded successfully!', 'success');
+            if (document.getElementById('payAmount')) document.getElementById('payAmount').value = '';
+            this.renderPaymentsPage();
+        } else {
+            this.toast('Redirecting to secure payment gateway...', 'info');
+            const reqBody = { memberId, amount, method, planId };
+            const res = await this.fetchAPI('/init-payment', 'POST', reqBody);
+            
+            if (res.success && res.GatewayPageURL) {
+                window.location.href = res.GatewayPageURL;
+            } else {
+                this.toast(res.message || 'Payment init failed', 'error');
+            }
+        }
       };
     }
 

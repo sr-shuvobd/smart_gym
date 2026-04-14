@@ -9,6 +9,7 @@ const port = 3000;
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Serve static files from the current directory (HTML, CSS, JS)
 app.use(express.static(path.join(__dirname)));
@@ -212,6 +213,98 @@ app.post('/api/payments', async (req, res) => {
       [id, memberId, amount, method, at]);
     res.json({ success: true });
   } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// --- SSLCOMMERZ ---
+app.post('/api/init-payment', async (req, res) => {
+  const { memberId, amount, method, planId } = req.body;
+  const tran_id = `REF_${Date.now()}`;
+  
+  const formData = new URLSearchParams();
+  formData.append('store_id', 'testbox');
+  formData.append('store_passwd', 'qwerty');
+  formData.append('total_amount', amount);
+  formData.append('currency', 'BDT');
+  formData.append('tran_id', tran_id);
+  formData.append('success_url', 'http://localhost:3000/api/payment-success');
+  formData.append('fail_url', 'http://localhost:3000/api/payment-fail');
+  formData.append('cancel_url', 'http://localhost:3000/api/payment-cancel');
+  formData.append('cus_name', 'Gym Member');
+  formData.append('cus_email', 'member@gym.com');
+  formData.append('cus_add1', 'Dhaka');
+  formData.append('cus_city', 'Dhaka');
+  formData.append('cus_state', 'Dhaka');
+  formData.append('cus_postcode', '1000');
+  formData.append('cus_country', 'Bangladesh');
+  formData.append('cus_phone', '01711111111');
+  formData.append('shipping_method', 'NO');
+  formData.append('product_name', 'Membership');
+  formData.append('product_category', 'General');
+  formData.append('product_profile', 'general');
+  formData.append('value_a', memberId);
+  formData.append('value_b', method);
+  formData.append('value_c', planId || '');
+
+  try {
+    const response = await fetch('https://sandbox.sslcommerz.com/gwprocess/v4/api.php', {
+      method: 'POST',
+      body: formData
+    });
+    const result = await response.json();
+    
+    if (result.status === 'SUCCESS' || result.status === 'success') {
+      res.json({ success: true, GatewayPageURL: result.GatewayPageURL || result.redirectGatewayURL });
+    } else {
+      res.json({ success: false, message: result.failedreason || 'Failed to init payment' });
+    }
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post('/api/payment-success', async (req, res) => {
+  const data = req.body;
+  try {
+     const newId = `pay_${Date.now()}`;
+     
+     // Determine exactly which bank/card was used if provided by SSL
+     let methodFromSSL = data.value_b || 'Online';
+     if (data.card_type || data.card_issuer) {
+         const issuer = data.card_issuer || '';
+         const card = data.card_type || '';
+         methodFromSSL = `${card} ${issuer}`.trim();
+     }
+
+     await run('INSERT INTO payments (id, memberId, amount, method, at) VALUES (?, ?, ?, ?, ?)', 
+      [newId, data.value_a, data.amount, methodFromSSL, new Date().toISOString()]);
+     
+     if (data.value_c) {
+       const members = await query('SELECT * FROM members WHERE id = ?', [data.value_a]);
+       if (members.length > 0) {
+         const member = members[0];
+         let now = new Date();
+         let currentExpiry = member.expiry ? new Date(member.expiry) : now;
+         if (currentExpiry < now) currentExpiry = now;
+         
+         if (data.value_c === 'monthly') currentExpiry.setMonth(currentExpiry.getMonth() + 1);
+         if (data.value_c === 'quarterly') currentExpiry.setMonth(currentExpiry.getMonth() + 3);
+         if (data.value_c === 'yearly') currentExpiry.setFullYear(currentExpiry.getFullYear() + 1);
+         
+         await run('UPDATE members SET plan = ?, expiry = ?, active = 1 WHERE id = ?', 
+          [data.value_c, currentExpiry.toISOString(), data.value_a]);
+       }
+     }
+     res.redirect('/payments.html?msg=success');
+  } catch(e) {
+     res.redirect('/payments.html?msg=error');
+  }
+});
+
+app.post('/api/payment-fail', async (req, res) => {
+  res.redirect('/payments.html?msg=fail');
+});
+app.post('/api/payment-cancel', async (req, res) => {
+  res.redirect('/payments.html?msg=cancel');
 });
 
 // Initialize dummy defaults if trainers are empty
