@@ -7,11 +7,16 @@ const API_BASE = 'http://localhost:3000/api';
 
 const SmartGym = {
   keys: {
-    USER: 'sgms_user' // Keep user session in sessionStorage
+    USER: 'sgms_user' // Keep user session in localStorage
   },
 
   async init() {
-    await this.ensureData();
+    try {
+      await this.ensureData();
+    } catch (e) {
+      console.error("Backend not reachable: ", e);
+      this.toast("Cannot connect to server. Ensure backend is running.", "error");
+    }
     this.setupAuth();
     this.setupNavigation();
     await this.renderCurrentPage();
@@ -19,13 +24,18 @@ const SmartGym = {
 
   // API Callers
   async fetchAPI(endpoint, method = 'GET', body = null) {
-    const options = { method, headers: {} };
-    if (body) {
-      options.headers['Content-Type'] = 'application/json';
-      options.body = JSON.stringify(body);
+    try {
+      const options = { method, headers: {} };
+      if (body) {
+        options.headers['Content-Type'] = 'application/json';
+        options.body = JSON.stringify(body);
+      }
+      const res = await fetch(`${API_BASE}${endpoint}`, options);
+      return await res.json();
+    } catch (err) {
+      console.error(`API Error on ${endpoint}:`, err);
+      return { success: false, error: err.message };
     }
-    const res = await fetch(`${API_BASE}${endpoint}`, options);
-    return await res.json();
   },
 
   uid(prefix = 'id') {
@@ -39,20 +49,20 @@ const SmartGym = {
 
   // Auth
   getCurrentUser() {
-    return JSON.parse(sessionStorage.getItem(this.keys.USER));
+    return JSON.parse(localStorage.getItem(this.keys.USER));
   },
 
   async login(email, password, role) {
     const response = await this.fetchAPI('/login', 'POST', { email, password, role });
     if (response.success) {
-      sessionStorage.setItem(this.keys.USER, JSON.stringify(response.user));
+      localStorage.setItem(this.keys.USER, JSON.stringify(response.user));
       return true;
     }
     return false;
   },
 
   logout() {
-    sessionStorage.removeItem(this.keys.USER);
+    localStorage.removeItem(this.keys.USER);
     window.location.href = 'login.html';
   },
 
@@ -568,9 +578,9 @@ const SmartGym = {
           <label>Select Plan</label>
           <select id="payPlan">
             <option value="" data-amount="">Select a Plan...</option>
-            <option value="monthly" data-amount="29.99">Monthly ($29.99)</option>
-            <option value="quarterly" data-amount="79.99">Quarterly ($79.99)</option>
-            <option value="yearly" data-amount="299.99">Yearly ($299.99)</option>
+            <option value="monthly" data-amount="2500">Monthly (৳2500)</option>
+            <option value="quarterly" data-amount="7000">Quarterly (৳7000)</option>
+            <option value="yearly" data-amount="25000">Yearly (৳25000)</option>
           </select>
           <input type="hidden" id="payAmount" value="" />
         `;
@@ -635,7 +645,7 @@ const SmartGym = {
             <tbody>
               ${payments.map(p => {
           const m = members.find(x => x.id === p.memberId) || { name: 'Unknown' };
-          return `<tr><td>${m.name}</td><td>$${p.amount}</td><td>${p.method}</td><td>${new Date(p.at).toLocaleDateString()}</td></tr>`;
+          return `<tr><td>${m.name}</td><td>৳${p.amount}</td><td>${p.method}</td><td>${new Date(p.at).toLocaleDateString()}</td></tr>`;
         }).join('')}
             </tbody>
           </table>
@@ -659,7 +669,7 @@ const SmartGym = {
     const matchDOM = (id, val) => document.getElementById(id) && (document.getElementById(id).textContent = val);
     matchDOM('totalMembers', members.length);
     matchDOM('activeMembers', active);
-    matchDOM('totalRevenue', `$${totalRevenue.toLocaleString()}`);
+    matchDOM('totalRevenue', `৳${totalRevenue.toLocaleString()}`);
     matchDOM('totalSessions', sessions.length);
 
     const commonOptions = {
