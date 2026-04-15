@@ -2,7 +2,7 @@
 
 A complete, modern web-based management system designed specifically for gymnasiums. It handles everything from member registrations, trainer schedules, custom workout & diet plans, and robust revenue tracking through secure online payments.
 
-Developed as a University Project by **Group 6**.
+Developed as a University Project by **Group 4**.
 
 ## 🌟 Key Features
 

@@ -215,20 +215,40 @@ app.post('/api/payments', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// --- PACKAGES ---
+app.get('/api/packages', async (req, res) => {
+  try {
+    const packages = await query('SELECT * FROM packages');
+    res.json(packages);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.put('/api/packages/:id', async (req, res) => {
+  const { price, description } = req.body;
+  try {
+    await run('UPDATE packages SET price = ?, description = ? WHERE id = ?', [price, description, req.params.id]);
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 // --- SSLCOMMERZ ---
 app.post('/api/init-payment', async (req, res) => {
   const { memberId, amount, method, planId } = req.body;
   const tran_id = `REF_${Date.now()}`;
   
+  const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
+  const host = req.headers.host || 'localhost:3000';
+  const baseUrl = `${protocol}://${host}`;
+
   const formData = new URLSearchParams();
   formData.append('store_id', 'testbox');
   formData.append('store_passwd', 'qwerty');
   formData.append('total_amount', amount);
   formData.append('currency', 'BDT');
   formData.append('tran_id', tran_id);
-  formData.append('success_url', 'http://localhost:3000/api/payment-success');
-  formData.append('fail_url', 'http://localhost:3000/api/payment-fail');
-  formData.append('cancel_url', 'http://localhost:3000/api/payment-cancel');
+  formData.append('success_url', `${baseUrl}/api/payment-success`);
+  formData.append('fail_url', `${baseUrl}/api/payment-fail`);
+  formData.append('cancel_url', `${baseUrl}/api/payment-cancel`);
   formData.append('cus_name', 'Gym Member');
   formData.append('cus_email', 'member@gym.com');
   formData.append('cus_add1', 'Dhaka');

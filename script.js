@@ -56,9 +56,9 @@ const SmartGym = {
     const response = await this.fetchAPI('/login', 'POST', { email, password, role });
     if (response.success) {
       localStorage.setItem(this.keys.USER, JSON.stringify(response.user));
-      return true;
+      return { success: true };
     }
-    return false;
+    return { success: false, message: response.message || response.error || 'Login failed' };
   },
 
   logout() {
@@ -75,15 +75,19 @@ const SmartGym = {
         const password = document.getElementById('loginPassword').value;
         const role = document.getElementById('loginRole').value;
 
-        const success = await this.login(email, password, role);
-        if (success) {
-          this.toast('Login successful', 'success');
+        if (!email || !password) {
+          return this.toast('Please enter email and password', 'error');
+        }
+
+        const result = await this.login(email, password, role);
+        if (result.success) {
+          this.toast('Login successful!', 'success');
           setTimeout(() => {
             if (role === 'admin') window.location.href = 'admin.html';
             else window.location.href = 'index.html';
           }, 1000);
         } else {
-          this.toast('Invalid credentials', 'error');
+          this.toast(result.message, 'error');
         }
       });
     }
@@ -99,10 +103,10 @@ const SmartGym = {
         roleSelect.addEventListener('change', () => {
           if (roleSelect.value === 'trainer') {
             specialtyGroup.style.display = 'block';
-            planGroup.style.display = 'none';
+            if (planGroup) planGroup.style.display = 'none';
           } else {
             specialtyGroup.style.display = 'none';
-            planGroup.style.display = 'block';
+            if (planGroup) planGroup.style.display = 'block';
           }
         });
       }
@@ -116,8 +120,15 @@ const SmartGym = {
         const contact = document.getElementById('contact').value.trim();
         const role = document.getElementById('role').value;
 
+        if (!name || !email || !password) {
+          return this.toast('Please fill in all required fields', 'error');
+        }
+
+        let regError = null;
+
         if (role === 'member') {
-          const plan = document.getElementById('plan').value;
+          const planEl = document.getElementById('plan');
+          const plan = planEl ? planEl.value : 'monthly';
           const start = new Date();
           let expiry = new Date(start);
           if (plan === 'monthly') expiry.setMonth(expiry.getMonth() + 1);
@@ -133,17 +144,25 @@ const SmartGym = {
           };
 
           const res = await this.fetchAPI('/members', 'POST', newMember);
-          if (res.error) return this.toast(res.error, 'error');
+          if (res.error || !res.success) {
+            regError = res.error || res.message || 'Registration failed. Please try again.';
+          }
         } else if (role === 'trainer') {
           const specialty = document.getElementById('specialty').value.trim();
-          if (!specialty) return this.toast('Please enter specialty', 'error');
+          if (!specialty) return this.toast('Please enter your specialty', 'error');
 
           const newTrainer = {
             id: this.uid('trainer'),
             name, age, email, password, contact, specialty
           };
           const res = await this.fetchAPI('/trainers', 'POST', newTrainer);
-          if (res.error) return this.toast(res.error, 'error');
+          if (res.error || !res.success) {
+            regError = res.error || res.message || 'Registration failed. Please try again.';
+          }
+        }
+
+        if (regError) {
+          return this.toast(regError, 'error');
         }
 
         this.toast('Registration successful! Please login.', 'success');
@@ -483,26 +502,47 @@ const SmartGym = {
       const manageSection = document.getElementById('managePlansSection');
       if (manageSection) {
         manageSection.style.display = 'block';
-        // Note: keeping these plans in localStorage or static array since they are static options.
-        let mPlans = [
-          { id: 'monthly', name: 'Monthly Plan', price: 29.99, desc: 'Full access for 1 month' },
-          { id: 'quarterly', name: 'Quarterly Plan', price: 79.99, desc: 'Full access for 3 months' },
-          { id: 'yearly', name: 'Yearly Plan', price: 299.99, desc: 'Full access for 1 year' }
-        ];
+        const mPackages = await this.fetchAPI('/packages');
         
         const container = document.getElementById('managePlansList');
         if (container) {
-          container.innerHTML = mPlans.map(p => `
+          container.innerHTML = mPackages.map(p => `
             <div class="feature-card" style="display: flex; justify-content: space-between; align-items: center;">
               <div>
                 <h4>${p.name}</h4>
-                <p class="text-muted">$${p.price} - ${p.desc}</p>
+                <p class="text-muted">৳${p.price} - ${p.description}</p>
               </div>
+              <button class="btn btn-sm btn-outline" onclick="SmartGym.editPackage('${p.id}')">
+                <i class="fas fa-edit"></i> Edit
+              </button>
             </div>
           `).join('');
         }
       }
     }
+
+    // Dynamic global for editing packages
+    window.SmartGym.editPackage = async (id) => {
+      const packages = await this.fetchAPI('/packages');
+      const pkg = packages.find(p => p.id === id);
+      if (!pkg) return;
+
+      const newPrice = prompt(`Enter new price for ${pkg.name} (৳):`, pkg.price);
+      const newDesc = prompt(`Enter new description for ${pkg.name}:`, pkg.description);
+
+      if (newPrice !== null && newDesc !== null) {
+        const res = await this.fetchAPI(`/packages/${id}`, 'PUT', { 
+          price: parseFloat(newPrice), 
+          description: newDesc 
+        });
+        if (res.success) {
+          this.toast('Plan updated successfully', 'success');
+          this.renderPlansPage();
+        } else {
+          this.toast(res.error || 'Failed to update plan', 'error');
+        }
+      }
+    };
 
     const select = document.getElementById('planMember');
     if (select) {
@@ -574,13 +614,13 @@ const SmartGym = {
         select.disabled = true;
         
         const amountDiv = document.getElementById('payAmount').closest('div');
+        const mPackages = await this.fetchAPI('/packages');
+        
         amountDiv.innerHTML = `
           <label>Select Plan</label>
           <select id="payPlan">
             <option value="" data-amount="">Select a Plan...</option>
-            <option value="monthly" data-amount="2500">Monthly (৳2500)</option>
-            <option value="quarterly" data-amount="7000">Quarterly (৳7000)</option>
-            <option value="yearly" data-amount="25000">Yearly (৳25000)</option>
+            ${mPackages.map(p => `<option value="${p.id}" data-amount="${p.price}">${p.name} (৳${p.price})</option>`).join('')}
           </select>
           <input type="hidden" id="payAmount" value="" />
         `;
@@ -618,13 +658,22 @@ const SmartGym = {
             if (document.getElementById('payAmount')) document.getElementById('payAmount').value = '';
             this.renderPaymentsPage();
         } else {
-            this.toast('Redirecting to secure payment gateway...', 'info');
+            this.toast('Opening secure payment gateway...', 'info');
+            
+            // Open a blank tab immediately to avoid popup blockers
+            const paymentWindow = window.open('', '_blank');
+            if (!paymentWindow) {
+                return this.toast('Popup blocked! Please allow popups for this site.', 'error');
+            }
+            paymentWindow.document.write('<p style="font-family:sans-serif; text-align:center; margin-top:50px;">Loading Payment Gateway...</p>');
+
             const reqBody = { memberId, amount, method, planId };
             const res = await this.fetchAPI('/init-payment', 'POST', reqBody);
             
             if (res.success && res.GatewayPageURL) {
-                window.location.href = res.GatewayPageURL;
+                paymentWindow.location.href = res.GatewayPageURL;
             } else {
+                paymentWindow.close();
                 this.toast(res.message || 'Payment init failed', 'error');
             }
         }

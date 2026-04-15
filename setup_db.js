@@ -65,6 +65,24 @@ const db = new sqlite3.Database(dbPath, (err) => {
         at TEXT
       )`);
 
+      // 6. Packages Table
+      db.run(`CREATE TABLE IF NOT EXISTS packages (
+        id TEXT PRIMARY KEY,
+        name TEXT,
+        price REAL,
+        description TEXT
+      )`, () => {
+        // Initial seeding for packages if empty
+        db.get("SELECT COUNT(*) as count FROM packages", (err, row) => {
+          if (!err && row.count === 0) {
+            db.run(`INSERT INTO packages (id, name, price, description) VALUES 
+              ('monthly', 'Monthly Plan', 2500, 'Full access for 1 month'),
+              ('quarterly', 'Quarterly Plan', 7000, 'Full access for 3 months'),
+              ('yearly', 'Yearly Plan', 25000, 'Full access for 1 year')`);
+          }
+        });
+      });
+
       console.log('All tables created successfully.');
     });
   }
